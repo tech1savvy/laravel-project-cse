@@ -22,7 +22,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy application files
 COPY . .
 
-# Ensure the SQLite database file exists
+# Copy .env.example to .env (like your CI workflow)
+RUN cp .env.example .env
+
+# Ensure the SQLite database file exists and is writable
 RUN mkdir -p database && touch database/database.sqlite && chmod -R 777 database
 
 # Install PHP dependencies
@@ -36,7 +39,7 @@ RUN chown -R www-data:www-data /var/www/html \
     && a2enmod rewrite \
     && echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Environment variables (Render will override these)
+# Environment variables (Render will override these if set in the dashboard)
 ENV APP_ENV=production
 ENV DB_CONNECTION=sqlite
 ENV DB_DATABASE=/var/www/html/database/database.sqlite
