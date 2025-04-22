@@ -6,6 +6,10 @@ WORKDIR /var/www/html
 
 # Install system dependencies and PHP extensions required by Laravel and SQLite
 RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y \
     git \
     unzip \
     libpng-dev \
@@ -13,8 +17,9 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libzip-dev \
     sqlite3 \
-    npm \
+    nodejs \
     && docker-php-ext-install pdo pdo_sqlite mbstring exif pcntl bcmath gd zip
+
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
