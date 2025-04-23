@@ -4,22 +4,26 @@ FROM php:8.2-apache
 # Set working directory
 WORKDIR /var/www/html
 
-# Install system dependencies and PHP extensions required by Laravel and SQLite
+# Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
+    git \
     curl \
     gnupg \
-    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y \
-    git \
     unzip \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
     sqlite3 \
-    nodejs \
+    && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-install pdo pdo_sqlite mbstring exif pcntl bcmath gd zip
 
+# Add Node.js 18.x repository
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+
+# Install Node.js and npm
+RUN apt-get update && apt-get install -y nodejs \
+    && npm install -g npm@latest
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -27,11 +31,13 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy application files
 COPY . .
 
-# Copy .env.example to .env (like your CI workflow)
+# Create .env file from example
 RUN cp .env.example .env
 
-# Ensure the SQLite database file exists and is writable
-RUN mkdir -p database && touch database/database.sqlite && chmod -R 777 database
+# Create SQLite database and set permissions
+RUN mkdir -p database \
+    && touch database/database.sqlite \
+    && chmod -R 777 storage bootstrap/cache database
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
@@ -39,12 +45,11 @@ RUN composer install --no-dev --optimize-autoloader
 # Build frontend assets
 RUN npm install && npm run build
 
-# Set permissions for Laravel
-RUN chown -R www-data:www-data /var/www/html \
-    && a2enmod rewrite \
+# Configure Apache
+RUN a2enmod rewrite \
     && echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Environment variables (Render will override these if set in the dashboard)
+# Environment variables
 ENV APP_ENV=production
 ENV DB_CONNECTION=sqlite
 ENV DB_DATABASE=/var/www/html/database/database.sqlite
