@@ -1,36 +1,33 @@
-# Use official PHP 8.2 image with Apache
-FROM php:8.2-apache
+# Use the official PHP image with FPM
+FROM php:8.2-fpm
 
-# Set working directory
-WORKDIR /var/www/html
-
-# Install essential dependencies only
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
+    git \
     curl \
-    gnupg \
-    unzip \
-    sqlite3 \
-    && rm -rf /var/lib/apt/lists/*
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip
 
-# Add Node.js 18.x (simplified installation)
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g npm@latest
+# Install PHP extensions required by Laravel
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Install Composer
+# Install Composer globally
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy application files
+# Set working directory
+WORKDIR /var/www
+
+# Copy existing application directory contents
 COPY . .
 
-# Basic Laravel setup
-RUN cp .env.example .env \
-    && composer install --no-dev --optimize-autoloader \
-    && npm install && npm run build
+# Copy existing application directory permissions
+RUN chown -R www-data:www-data /var/www
 
-# Apache configuration
-RUN a2enmod rewrite \
-    && echo "ServerName localhost" >> /etc/apache2/apache2.conf
+# Expose port 8000 for Laravel's development server
+EXPOSE 8000
 
-EXPOSE 80
-CMD ["apache2-foreground"]
+# Default command (can be overridden)
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
