@@ -25,8 +25,8 @@ class AdminAuthController extends Controller
         $admin = Admin::where('email', $credentials['email'])->first();
 
         if ($admin && Hash::check($credentials['password'], $admin->password)) {
-            session(['admin_id' => $admin->id]);
-            return redirect()->route('adminDashboard');
+            session(['admin_id' => $admin->id]); // Ensure session is set
+            return redirect()->route('admin.dashboard'); // Use correct route name
         }
 
         return back()->withErrors([
@@ -38,5 +38,10 @@ class AdminAuthController extends Controller
     {
         $request->session()->forget('admin_id');
         return redirect()->route('adminLogin');
+    }
+
+    public function dashboard()
+    {
+        return view('admin.dashboard'); // Ensure this view exists
     }
 }

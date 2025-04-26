@@ -6,27 +6,9 @@
 <div class="container py-5">
     <h1 class="mb-4">Welcome, Admin!</h1>
 
-    <!-- Quick Stats -->
+    <!-- Back to Website Button -->
     <div class="row mb-5">
-        <div class="col-md-4">
-            <div class="card bg-primary text-white shadow rounded mb-4">
-                <div class="card-body text-center">
-                    <h5 class="card-title mb-2">Total Services</h5>
-                    <h2 class="display-4">{{ \App\Models\Service::count() }}</h2>
-                    <a href="{{ route('admin.services.index') }}" class="btn btn-light btn-sm rounded-pill mt-3">Manage Services</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-secondary text-white shadow rounded mb-4">
-                <div class="card-body text-center">
-                    <h5 class="card-title mb-2">Create New Service</h5>
-                    <i class="fa fa-plus fa-2x mb-2"></i>
-                    <a href="{{ route('admin.services.create') }}" class="btn btn-light btn-sm rounded-pill mt-3">Add Service</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
+        <div class="col-md-12">
             <div class="card bg-light text-primary shadow rounded mb-4">
                 <div class="card-body text-center">
                     <h5 class="card-title mb-2">Back to Website</h5>
@@ -37,7 +19,50 @@
         </div>
     </div>
 
-    <!-- Recent Services Table -->
+    <!-- Quick Stats for Services and Projects -->
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card bg-primary text-white shadow rounded mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-2">Total Services</h5>
+                    <h2 class="display-4">{{ \App\Models\Service::count() }}</h2>
+                    <a href="{{ route('admin.services.index') }}" class="btn btn-light btn-sm rounded-pill mt-3">Manage Services</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-info text-white shadow rounded mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-2">Total Projects</h5>
+                    <h2 class="display-4">{{ \App\Models\Project::count() }}</h2>
+                    <a href="{{ route('admin.projects.index') }}" class="btn btn-light btn-sm rounded-pill mt-3">Manage Projects</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card bg-secondary text-white shadow rounded mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-2">Create New Service</h5>
+                    <i class="fa fa-plus fa-2x mb-2"></i>
+                    <a href="{{ route('admin.services.create') }}" class="btn btn-light btn-sm rounded-pill mt-3">Add Service</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-success text-white shadow rounded mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-2">Create New Project</h5>
+                    <i class="fa fa-plus fa-2x mb-2"></i>
+                    <a href="{{ route('admin.projects.create') }}" class="btn btn-light btn-sm rounded-pill mt-3">Add Project</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Existing Recently Added Services Table -->
     <div class="card shadow rounded">
         <div class="card-header bg-primary text-white">
             <h5 class="mb-0">Recently Added Services</h5>
@@ -71,6 +96,49 @@
                     @if(\App\Models\Service::count() === 0)
                         <tr>
                             <td colspan="4" class="text-center text-muted">No services found.</td>
+                        </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recently Added Projects Table -->
+    <div class="card shadow rounded mt-5">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Recently Added Projects</h5>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Title</th>
+                        <th>Image</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(\App\Models\Project::latest()->take(5)->get() as $project)
+                        <tr>
+                            <td>{{ $project->title }}</td>
+                            <td>
+                                <img src="{{ Storage::url($project->image_path) }}" alt="{{ $project->title }}" style="width:50px;">
+                            </td>
+                            <td>{{ $project->created_at->diffForHumans() }}</td>
+                            <td>
+                                <a href="{{ route('admin.projects.edit', $project->id) }}" class="btn btn-sm btn-warning rounded-pill">Edit</a>
+                                <form action="{{ route('admin.projects.destroy', $project->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this project?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-sm btn-danger rounded-pill">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                    @if(\App\Models\Project::count() === 0)
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No projects found.</td>
                         </tr>
                     @endif
                 </tbody>

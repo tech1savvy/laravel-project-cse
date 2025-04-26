@@ -48,7 +48,7 @@
                             <h3 class="mb-0 text-primary">Admin Login</h3>
                             <p class="text-muted mb-0">Sign in to your admin dashboard</p>
                         </div>
-                        <form method="POST" action="{{ route('adminLoginPost') }}">
+                        <form method="POST" action="{{ route('admin.adminLoginPost') }}">
                             @csrf
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email address</label>
