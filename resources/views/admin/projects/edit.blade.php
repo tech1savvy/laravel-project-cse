@@ -36,7 +36,7 @@
             @enderror
             @if($project->image_path)
                 <div class="mt-2">
-                    <img src="{{ asset('storage/'.$project->image_path) }}" alt="Current image" class="img-thumbnail" width="150">
+                    <img src="{{ Storage::url($project->image_path) }}" alt="Current image" class="img-thumbnail" width="150">
                 </div>
             @endif
         </div>
