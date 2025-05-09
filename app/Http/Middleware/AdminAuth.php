@@ -10,7 +10,7 @@ class AdminAuth
     public function handle(Request $request, Closure $next)
     {
         if (!$request->session()->has('admin_id')) {
-            return redirect()->route('adminLogin');
+            return response()->view('pages.home');
         }
 
         return $next($request);

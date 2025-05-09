@@ -4,6 +4,11 @@
 
 @section('content')
 <div class="container py-5">
+    <!-- Logout Option -->
+    <div class="text-end mb-3">
+        <a href="{{ url('/') }}" class="btn btn-danger">Logout</a>
+    </div>
+
     <h1 class="mb-4">Welcome, Admin!</h1>
 
     <!-- Back to Website Button -->
